@@ -139,7 +139,7 @@ def main(args):
     print("Model compiled")
 
     # select operation mode and compute prediction
-    if audiofile is not "0":
+    if audiofile != "0":
 
         if model_name == 'model7':
             # predict using trained model
@@ -169,7 +169,7 @@ def main(args):
             audiofile, audiofile.replace('wav', 'csv'))
         )
 
-    elif audio_folder is not "0":
+    elif audio_folder != "0":
 
         for audiofile in os.listdir(audio_folder):
 
