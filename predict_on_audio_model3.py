@@ -10,6 +10,7 @@ import utils_train
 import hdf5plugin
 import numpy as np
 import pandas as pd
+import scipy
 
 import os
 import argparse
@@ -75,7 +76,11 @@ def main(args):
             model, audio_file=audiofile
         )
 
-        df = pd.DataFrame(predicted_output.T)
+        peak_thresh_mat = np.zeros(predicted_output.shape)
+        peaks = scipy.signal.argrelmax(predicted_output, axis=0)
+        peak_thresh_mat[peaks] = predicted_output[peaks]
+
+        df = pd.DataFrame(peak_thresh_mat.T)
         df.to_hdf(audiofile.replace('wav', 'h5'), 'mix', mode='a', complevel=9, complib='blosc', append=True, format='table')
         
         print(" > > > Multiple F0 prediction for {} exported as {}.".format(
@@ -94,7 +99,11 @@ def main(args):
                     audio_folder, audiofile)
             )
 
-            df = pd.DataFrame(predicted_output.T)
+            peak_thresh_mat = np.zeros(predicted_output.shape)
+            peaks = scipy.signal.argrelmax(predicted_output, axis=0)
+            peak_thresh_mat[peaks] = predicted_output[peaks]
+
+            df = pd.DataFrame(peak_thresh_mat.T)
             df.to_hdf(os.path.join(audio_folder, audiofile.replace('wav', 'h5')), 'mix', mode='a', complevel=9, complib='blosc', append=True, format='table')
 
             print(" > > > Multiple F0 prediction for {} exported as {}.".format(
