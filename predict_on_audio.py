@@ -35,12 +35,12 @@ def get_single_test_prediction_phase_free(model, audio_file=None):
 
     input_hcqt = input_hcqt.transpose(1, 2, 0)[np.newaxis, :, :, :]
 
-    n_t = input_hcqt.shape[2]
+    n_t = input_hcqt.shape[3]
     t_slices = list(np.arange(0, n_t, 5000))
     output_list = []
     # we need two inputs
     for t in t_slices:
-        p = model.predict(np.transpose(input_hcqt[:, :, t:t+5000, :], (0, 1, 3, 2)))[0, :, :]
+        p = model.predict(np.transpose(input_hcqt[:, :, :, t:t+5000], (0, 1, 3, 2)))[0, :, :]
 
         output_list.append(p)
 
@@ -65,13 +65,13 @@ def get_single_test_prediction(model, audio_file=None):
     input_hcqt = input_hcqt.transpose(1, 2, 0)[np.newaxis, :, :, :]
     input_dphase = input_dphase.transpose(1, 2, 0)[np.newaxis, :, :, :]
 
-    n_t = input_hcqt.shape[2]
+    n_t = input_hcqt.shape[3]
     t_slices = list(np.arange(0, n_t, 5000))
     output_list = []
 
     for t in t_slices:
-        p = model.predict([np.transpose(input_hcqt[:, :, t:t+5000, :], (0, 1, 3, 2)),
-                           np.transpose(input_dphase[:, :, t:t+5000, :], (0, 1, 3, 2))]
+        p = model.predict([np.transpose(input_hcqt[:, :, :, t:t+5000], (0, 1, 3, 2)),
+                           np.transpose(input_dphase[:, :, :, t:t+5000], (0, 1, 3, 2))]
                           )[0, :, :]
 
         output_list.append(p)
