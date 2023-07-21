@@ -58,7 +58,8 @@ def main(args):
     model_path = "./models/{}.pkl".format(save_key)
     model = models.build_model3()
     model.load_weights(model_path)
-    thresh = 0.5
+    thresh = 0.4
+    peak_picking = False
 
     # compile model
 
@@ -76,11 +77,12 @@ def main(args):
             model, audio_file=audiofile
         )
 
-        peak_thresh_mat = np.zeros(predicted_output.shape)
-        peaks = scipy.signal.argrelmax(predicted_output, axis=0)
-        peak_thresh_mat[peaks] = predicted_output[peaks] >= thresh
-        peak_thresh_mat = peak_thresh_mat.astype(np.float32)
-        predicted_output = scipy.ndimage.gaussian_filter1d(peak_thresh_mat, 1, axis=0, mode='wrap')
+        if(peak_picking):
+            peak_thresh_mat = np.zeros(predicted_output.shape)
+            peaks = scipy.signal.argrelmax(predicted_output, axis=0)
+            peak_thresh_mat[peaks] = predicted_output[peaks] >= thresh
+            peak_thresh_mat = peak_thresh_mat.astype(np.float32)
+            predicted_output = scipy.ndimage.gaussian_filter1d(peak_thresh_mat, 1, axis=0, mode='wrap')
 
         df = pd.DataFrame(predicted_output.T)
         df.to_hdf(audiofile.replace('wav', 'h5'), 'mix', mode='a', complevel=9, complib='blosc', append=True, format='table')
@@ -101,11 +103,12 @@ def main(args):
                     audio_folder, audiofile)
             )
 
-            peak_thresh_mat = np.zeros(predicted_output.shape)
-            peaks = scipy.signal.argrelmax(predicted_output, axis=0)
-            peak_thresh_mat[peaks] = predicted_output[peaks] >= thresh
-            peak_thresh_mat = peak_thresh_mat.astype(np.float32)
-            predicted_output = scipy.ndimage.gaussian_filter1d(peak_thresh_mat, 1, axis=0, mode='wrap')
+            if(peak_picking):
+                peak_thresh_mat = np.zeros(predicted_output.shape)
+                peaks = scipy.signal.argrelmax(predicted_output, axis=0)
+                peak_thresh_mat[peaks] = predicted_output[peaks] >= thresh
+                peak_thresh_mat = peak_thresh_mat.astype(np.float32)
+                predicted_output = scipy.ndimage.gaussian_filter1d(peak_thresh_mat, 1, axis=0, mode='wrap')
 
             df = pd.DataFrame(predicted_output.T)
             df.to_hdf(os.path.join(audio_folder, audiofile.replace('wav', 'h5')), 'mix', mode='a', complevel=9, complib='blosc', append=True, format='table')
